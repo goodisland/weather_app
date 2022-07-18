@@ -1,0 +1,162 @@
+<html>
+
+<head>
+    <title>天気情報表示webアプリ</title>
+    <!-- <meta http-equiv="content-type" charset="utf-8"> -->
+    <meta charset="UTF-8">
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
+    <link rel="stylesheet" href="./bootstrap-5.0.2/css/bootstrap.min.css">
+    <script src="./jquery/jquery.min.js"></script>
+    <script src="./bootstrap-5.0.2/js/bootstrap.min.js"></script>
+    
+</head>
+
+<body>
+    <header>
+        <div class="navbar navbar-dark bg-dark shadow-sm">
+          <div class="container d-flex justify-content-between">
+            <a href="#" class="navbar-brand d-flex align-items-center">
+              <!-- <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg> -->
+              <strong>天気情報表示webアプリ</strong>
+            </a>
+          </div>
+        </div>
+    </header>
+    <main role="main" class="container">
+        <nav aria-label="breadcrumb" class="m-3">
+            <ol class="breadcrumb">
+              <li class="breadcrumb-item"><a href="#">Home</a></li>
+              <li class="breadcrumb-item"><a href="./tokyo.html">東京</a></li>
+            </ol>
+          </nav>
+
+        <div style="position:relative;">
+            <canvas class="my-4 w-100" id="myChart" width="900" height="300"></canvas>
+        </div>
+        <div class="table-responsive">
+            <table id="targetTable" class="table table-striped table-sm">
+                <!-- <tbody id="targetTable_tbody"> -->
+                <?php include('./show_table.php');?>
+                    <!-- <tr><td>日付</td><td>天気</td><td>気圧[hpa]</td><td>気温[℃]</td><td>湿度[％]</td><td>風[m/s]</td><td>日の出</td><td>日の入り</td></tr><tr><td align='right'>2022-07-17 23:07:56</td><td align='right'>Clear</td><td align='right'>1001</td><td align='right'>26</td><td align='right'>79</td><td align='right'>5</td><td align='right'>2022-07-17 04:37:35</td><td align='right'>2022-07-17 18:56:40</td></tr><tr><td align='right'>2022-07-17 23:10:40</td><td align='right'>Clear</td><td align='right'>1001</td><td align='right'>26</td><td align='right'>80</td><td align='right'>5</td><td align='right'>2022-07-17 04:37:35</td><td align='right'>2022-07-17 18:56:40</td></tr><tr><td align='right'>2022-07-17 23:20:54</td><td align='right'>Clear</td><td align='right'>1001</td><td align='right'>26</td><td align='right'>80</td><td align='right'>4</td><td align='right'>2022-07-17 04:37:35</td><td align='right'>2022-07-17 18:56:40</td></tr><tr><td align='right'>2022-07-18 13:39:47</td><td align='right'>Clouds</td><td align='right'>1003</td><td align='right'>32</td><td align='right'>62</td><td align='right'>7</td><td align='right'>2022-07-18 04:38:16</td><td align='right'>2022-07-18 18:56:09</td></tr> -->
+                <!-- </tbody> -->
+            </table>
+        </div>
+        
+    </main>
+
+<!-- Graphs -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.bundle.min.js"></script>
+<script>
+  var arr_labels = [];
+  var arr_temp = [];
+  var arr_humi = [];
+//   var arr_pres = [];
+  var table = document.getElementById('targetTable');
+  console.log(table);
+  var tblTbody = document.getElementById('targetTable_tbody');
+  console.log(tblTbody);
+  document.getElementById("targetTable").value = "";
+  // td内のtrをループ。rowsコレクションで,行位置取得。
+		for (var i=0, rowLen=tblTbody.rows.length; i<rowLen; i++) {
+            arr_labels.push(String(tblTbody.rows[i].cells[0].innerHTML));
+            arr_temp.push(parseInt(tblTbody.rows[i].cells[3].innerHTML));
+            arr_humi.push(parseInt(tblTbody.rows[i].cells[4].innerHTML));
+            // arr_pres.push(parseInt(tblTbody.rows[i].cells[4].innerHTML));
+			// // tr内のtdをループ。cellsコレクションで行内セル位置取得。
+			// for (var j=0, colLen=tblTbody.rows[i].cells.length ; j<colLen; j++) {
+			// 	//i行目のj列目のセルを取得
+			// 	var cells = tblTbody.rows[i].cells[j];
+
+			// 	//取得した値をテキストエリアへ表示
+			// 	document.write(i + "行目" + j + "列目の値は「" + cells.innerHTML + "」です。\n");
+            //     // document.write("Hello world!!");
+		    // }
+	    }
+  console.log(arr_labels);
+  console.log(arr_temp);
+  console.log(arr_humi);
+  var ctx = document.getElementById("myChart");
+  var myChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: arr_labels,
+      datasets: [{
+        // type: 'line',
+        data: arr_temp,
+        label: "気温[℃]",
+        lineTension: 0,
+        // backgroundColor : "rgba(254,97,132,0.5)",
+        borderColor: 'rgba(254,97,132,0.8)',
+        borderWidth: 4,
+        yAxisID: "y-axis-1", // 追加
+        fill:false,
+        // pointBackgroundColor: '#007bff'
+      },
+      {
+        // type: 'line',
+        data: arr_humi,
+        label: "湿度[％]",
+        lineTension: 0,
+        // backgroundColor : "rgba(0,141,189,0.5)",
+        borderColor: 'rgba(0,55,117,0.8)',
+        borderWidth: 4,
+        yAxisID: "y-axis-2", // 追加
+        fill:false,
+        // pointBackgroundColor: '#007bff'
+      },
+    ]
+    },
+    options: {
+      scales: {
+        yAxes: [{
+            scaleLabel: {                  // 軸ラベル
+                            display: true,                 // 表示の有無
+                            labelString: '気温[℃]',     // ラベル
+                            fontFamily: "sans-serif",
+                            // fontColor: "blue",             // 文字の色
+                            fontFamily: "sans-serif",
+                            // fontSize: 16                   // フォントサイズ
+                        },
+            id: 'y-axis-1',                             
+            type: 'linear',
+            position: 'left',
+            ticks: {
+                beginAtZero: true
+            }}, {
+            id: 'y-axis-2',
+            scaleLabel: {                  // 軸ラベル
+                            display: true,                 // 表示の有無
+                            labelString: '湿度[％]',     // ラベル
+                            fontFamily: "sans-serif",
+                            // fontColor: "blue",             // 文字の色
+                            fontFamily: "sans-serif",
+                            // fontSize: 16                   // フォントサイズ
+                        },                         
+            type: 'linear',
+            position: 'right',
+            ticks: {
+                max: 100,
+                min: 0,
+                stepSize: 10
+            }}]
+      },
+      legend: {
+        display: true,
+      }
+    }
+  });
+</script>
+
+</body>
+
+<footer class="text-muted">
+    <div class="container">
+      <p class="float-right m-3">
+        <a href="#">-BACK-</a>
+      </p>
+      <!-- <p>Album example is &copy; Bootstrap, but please download and customize it for yourself!</p>
+      <p>New to Bootstrap? <a href="../../">Visit the homepage</a> or read our <a href="../../getting-started/">getting started guide</a>.</p> -->
+    </div>
+</footer>
+
+</html>
